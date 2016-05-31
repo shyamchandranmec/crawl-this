@@ -13,7 +13,7 @@ let chalk = require("chalk");
 let url =  null;
 let crawler = null;
 
-program.version('0.1.0')
+program.version('0.1.1')
     .option('-d, --depth <depth>', 'Depth to search. Should be a number')
     .arguments('<url>')
     .action(function(urlParam) {

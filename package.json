@@ -1,6 +1,6 @@
 {
   "name": "crawl-this",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A light weight crawler",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "crawl-this": "index.js"
   },
   "author": "shyamchandranmec@gmail.com",
+  "url": "https://github.com/shyamchandranmec/crawl-this",
   "license": "ISC",
   "dependencies": {
     "chalk": "^1.1.3",
