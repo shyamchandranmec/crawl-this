@@ -2,7 +2,7 @@
 
 ## How to install
 
-npm install crawl-this
+npm install crawl-this -g
 
 ## Usage
  Usage: crawl-this [options] <url>
