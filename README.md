@@ -1,5 +1,9 @@
 ## Light weight web crawler
 
+## How to install
+
+npm install crawl-this
+
 ## Usage
  Usage: crawl-this [options] <url>
 
