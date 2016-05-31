@@ -8,18 +8,24 @@ exports.validateOptions = function (options) {
     /**
      * Depth is optional
      */
+    
     if (options.depth) {
         if (isNaN(parseInt(options.depth)))
-            return true;
-
+            return false;
         if (options.depth <= 0)
-            return true;
-    }
+            return false;
+    } else if (options.depth == 0)
+        return false;
+    
+
+
     /**
      * URL is mandatory
      */
-    if(!options.url)
-        return true;
-    if(options.url.length == 0)
-        return true;
+    if (!options.url)
+        return false;
+    if (options.url.length == 0)
+        return false;
+
+    return true;
 };  

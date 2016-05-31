@@ -11,13 +11,18 @@ var chalk = require("chalk");
 
 function Crawler (options) {
     this.urlRepo = new Set();
-    this.depth = options.depth;
+    if (!options.depth) {
+        this.depth = "infinity";
+    } else {
+        this.depth = options.depth;
+    }
+    this.url = options.url;
 }
 
 Crawler.prototype.crawl = function (url, depth) {
     let self = this;
     return new Promise((resolve) => {
-        if (! self._addToRepo(this.urlRepo, url)) {
+        if (!self._addToRepo(url)) {
             return resolve();
         }
         if (depth == 0) {
@@ -25,7 +30,7 @@ Crawler.prototype.crawl = function (url, depth) {
         }
         return self._fetchUrlContents(url)
             .then((response) => {
-                return self._findLinks(response.html, response.url, this.urlRepo);
+                return self._findLinks(response.html, response.url);
             }).then((linksCollection) => {
                 let promises = [];
                 linksCollection.map(function (link) {
@@ -58,7 +63,7 @@ Crawler.prototype._getNewDepth = function (initialDepth, currentDepth) {
         newDepth = currentDepth - 1;
     }
     return newDepth;
-}
+};
 
 /**
  * Adds a value to the set
@@ -67,15 +72,15 @@ Crawler.prototype._getNewDepth = function (initialDepth, currentDepth) {
  * @returns {boolean}
  * @private
  */
-Crawler.prototype._addToRepo = function (repo, value) {
-    if (repo.has(value)) {
+Crawler.prototype._addToRepo = function (value) {
+    if (this.urlRepo.has(value)) {
         return false;
     } else {
         console.log(chalk.yellow(value));
-        repo.add(value);
+        this.urlRepo.add(value);
         return true;
     }
-}
+};
 
 /**
  * Checks if a url is valid
@@ -83,20 +88,20 @@ Crawler.prototype._addToRepo = function (repo, value) {
  * @returns {boolean}
  * @private
  */
-Crawler.prototype._checkValidURL  =  function (url) {
+Crawler.prototype._checkValidURL = function (url) {
     if (!url)
         return false;
     if (url.length == 0)
         return false;
     if (s(url).startsWith("#"))
         return false;
-    if (s(url).startsWith("javascript"))
+    if (s(url).startsWith("javascript:"))
         return false;
     if (s(url).startsWith("mailto:"))
         return false;
 
     return true;
-}
+};
 
 /**
  * Joins the base url and sub part to form a full url
@@ -106,12 +111,12 @@ Crawler.prototype._checkValidURL  =  function (url) {
  * Returns all the links in the page which is inside <a href>
  * @private
  */
-Crawler.prototype._createProperURL  = function (baseURL, link) {
+Crawler.prototype._createProperURL = function (baseURL, link) {
     link = urlx.resolve(baseURL, link);
     return link;
 };
 
-Crawler.prototype._findLinks = function (html, url, repo) {
+Crawler.prototype._findLinks = function (html, url) {
     var self = this;
     return new Promise((resolve, reject) => {
         let $ = cheerio.load(html);
@@ -120,15 +125,12 @@ Crawler.prototype._findLinks = function (html, url, repo) {
             let link = $(element).attr("href");
             if (self._checkValidURL(link)) {
                 link = self._createProperURL(url, link);
-                if (!repo.has(link)) {
-                    links.push(link);
-                }
+                links.push(link);
             }
         });
         return resolve(links);
-    })
-
-}
+    });
+};
 
 /**
  * Fetches the content of the url
@@ -141,7 +143,7 @@ Crawler.prototype._findLinks = function (html, url, repo) {
  * @private
  */
 Crawler.prototype._fetchUrlContents = function (url) {
-    console.log("fetching ", url)
+    var self = this;
     return new Promise((resolve, reject) => {
         let response = {
             url: url
@@ -158,11 +160,17 @@ Crawler.prototype._fetchUrlContents = function (url) {
             } else {
                 console.log(chalk.red("Error fetching url :", url, "-", err.message));
                 response.html = "";
+                /**
+                 * Remove from the repo if its an invalid url
+                 */
+                if(s(err.message).startsWith("Invalid URI")) {
+                    self.urlRepo.delete(url);
+                }
                 return resolve(response)
             }
         })
     })
-}
+};
 
 
 module.exports = Crawler;

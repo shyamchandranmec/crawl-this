@@ -27,7 +27,7 @@ function init () {
         url: url
     };
 
-    if (validator.validateOptions(options)) {
+    if (! validator.validateOptions(options)) {
         /**
          * Print help if input is not valid
          */
@@ -37,9 +37,7 @@ function init () {
         /**
          * If depth is not mentioned the crawler continues until the process is killed
          */
-        if(!options.depth) {
-            options.depth =  "infinity";
-        }
+       
         crawler = new Crawler(options);
         crawler.crawl(options.url, options.depth).then(() => {
             exit(0);
