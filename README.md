@@ -4,6 +4,9 @@
 
 npm install crawl-this -g
 
+## Required versions
+    node: >=v4.0.0
+
 ## Usage
  Usage: crawl-this [options] <url>
 
